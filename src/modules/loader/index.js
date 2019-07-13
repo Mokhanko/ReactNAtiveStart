@@ -3,22 +3,25 @@ import {
   ActivityIndicator,  StatusBar,
   View
 } from 'react-native';
-import {AsyncStorage} from "redux-persist";
+import { isSignedIn } from "../../components/isAuth";
 
 class AuthLoadingScreen extends React.Component {
   constructor(props) {
     super(props);
-    this._bootstrapAsync();
+
+    this.state = {
+      signedIn: false,
+      checkedSignIn: false
+    };
   }
 
-  // Fetch the token from storage then navigate to our appropriate place
-  _bootstrapAsync = async () => {
-    const userToken = await AsyncStorage.getItem('userToken');
+  componentDidMount() {
+    isSignedIn()
+      .then(res => this.setState({ signedIn: res, checkedSignIn: true }))
+      .catch(err => alert("An error occurred"));
 
-    // This will switch to the App screen or Auth screen and this loading
-    // screen will be unmounted and thrown away.
-    this.props.navigation.navigate(userToken ? 'App' : 'Auth');
-  };
+    this.props.navigation.navigate( this.props.signedIn? 'App' : 'Auth');
+  }
 
   // Render any loading content that you like here
   render() {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, View } from 'react-native';
-import {AsyncStorage} from "redux-persist";
+import { onSignOut } from '../../components/isAuth';
 
 export default class ProfileScreen extends React.Component {
   render() {
@@ -12,7 +12,7 @@ export default class ProfileScreen extends React.Component {
   }
 
   _signOutAsync = async () => {
-    await AsyncStorage.clear();
+    await onSignOut();
     this.props.navigation.navigate('Auth');
   };
 }

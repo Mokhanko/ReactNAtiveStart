@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Button } from 'react-native';
-import { AsyncStorage } from "redux-persist";
+import { onSignIn } from '../../components/isAuth';
 
 class SignInScreen extends React.Component {
   static navigationOptions = {
@@ -16,7 +16,7 @@ class SignInScreen extends React.Component {
   }
 
   _signInAsync = async () => {
-    await AsyncStorage.setItem('userToken', 'abc');
+    await onSignIn();
     this.props.navigation.navigate('App');
   };
 }
