@@ -1,39 +1,33 @@
-import { createStore } from 'redux'
-import { persistStore, persistReducer } from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
-import {AsyncStorage} from "react-native";
+import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { persistStore, persistReducer } from 'redux-persist';
+import { fork, all } from 'redux-saga/effects';
+import { AsyncStorage } from "react-native";
+import createSagaMiddleware from 'redux-saga';
+import authReducer from '../../src/modules/auth/reducer';
+import watchInput from '../../src/modules/auth/sagas';
 
-const initialState = {
-  name: ''
-};
-
-const CHANGE_NAME = 'CHANGE_NAME';
-
-export const changeName = name => ({
-  type: "CHANGE_NAME",
-  name
+const reducers = combineReducers({
+  auth: authReducer
 });
 
-const authReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case CHANGE_NAME:
-      return Object.assign({}, state, {
-        user_name: action.name
-      });
-    default:
-      return state;
-  }
-};
+const sagaMiddleware = createSagaMiddleware();
+
+function* rootSaga() {
+  yield all([
+    fork(watchInput)
+  ])
+}
 
 const persistConfig = {
   key: 'primary',
   storage: AsyncStorage
 };
 
-const persistedReducer = persistReducer(persistConfig, authReducer);
+const persistedReducer = persistReducer(persistConfig, reducers);
 
 export default () => {
-  let store = createStore(persistedReducer);
+  let store = createStore(persistedReducer, applyMiddleware(sagaMiddleware));
   let persistor = persistStore(store);
+  sagaMiddleware.run(rootSaga);
   return { store, persistor }
 }
